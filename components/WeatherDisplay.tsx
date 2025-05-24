@@ -1,28 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
-import { callWeatherApi } from '../utils/callWeatherApi';
-import { parseUserInput } from '../utils/parseUserInput';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
-type Props = {
-  text: string;
-};
+export default function WeatherDisplay(data) {
+  const [apiData, setApiData] = useState();
+  const [loading, setLoading] = useState<boolean>(false);
 
-export default function WeatherDisplay({ text }: Props) {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const cityData = await parseUserInput(text);
-      if(cityData) {
-        const cityWeatherData = await callWeatherApi(cityData);
-        setData(cityWeatherData);
-      }
-      setLoading(false);
-    }
-    fetchData();
-  }, [text]);
 
   return (
     <View>
@@ -31,16 +13,42 @@ export default function WeatherDisplay({ text }: Props) {
       ) : data?.error ? (
         <Text>{data.error}</Text>
       ) : data ? (
-        <>
-          <Text>latitude: {data.coord?.lat}</Text>
-          <Text>longitude: {data.coord?.lon}</Text>
-          <Text>temperature: {data.main?.temp}</Text>
-          <Text>humidity: {data.main?.humidity}</Text>
-          <Text>weather: {data.weather?.[0]?.description}</Text>
-        </>
+        <View style={styles.weatherDisplay}>
+          <Text style={styles.cityText}>{data.name}</Text>
+          <Text style={styles.temperatureText}>{data.main?.temp}°F</Text>
+          <Text style={styles.weatherText}>{data.weather?.[0]?.description}</Text>
+        </View>
       ) : (
         <Text>Enter a city name to get weather.</Text>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+	weatherDisplay: {
+	  backgroundColor: '#ffffff',
+	  borderRadius: 10,
+	  padding: 20,
+	  alignItems: 'center',
+	  shadowColor: '#000',
+	  shadowOffset: { width: 0, height: 2 },
+	  shadowOpacity: 0.1,
+	  shadowRadius: 5,
+	},
+	cityText: {
+	  fontSize: 22,
+	  fontWeight: '600',
+	  color: '#333',
+	  marginBottom: 10,
+	},
+	temperatureText: {
+	  fontSize: 48,
+	  fontWeight: 'bold',
+	  color: '#1e90ff',
+	},
+	weatherText: {
+	  fontSize: 18,
+    color: '#555',
+	},
+});

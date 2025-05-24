@@ -6,10 +6,10 @@ type Props = {
 };
 
 export default function SearchBar({ onChangeText }: Props) {
-
   return (
     <View>
       <TextInput
+        style={styles.searchBar}
         keyboardType="default"
         placeholder="'boise'"
         placeholderTextColor="#b1c4b6"
@@ -18,3 +18,12 @@ export default function SearchBar({ onChangeText }: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  searchBar: {
+    flex: 1,
+    fontSize: 16,
+    padding: 10,
+    color: '#333',
+  },
+});

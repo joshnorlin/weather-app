@@ -1,10 +1,9 @@
 export async function callWeatherApi(cityData) {
 
-  console.log("callWeatherApi: ", cityData);
-  console.log("latitude: ", cityData.lat);
+  console.log('Call Weather API Function results: ', cityData);
 
-  const lat = cityData.lat;
-  const lon = cityData.lng;
+  const lat = cityData[0].lat;
+  const lon = cityData[0].lng;
   const apiKey = "64dd29ae64329d866cdac373ca28f5fc";
   const units = "imperial";
   
@@ -12,7 +11,7 @@ export async function callWeatherApi(cityData) {
     const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${units}`
     );
-    console.log("response: ", response);
+    console.log('Post API response: ', response);
     const json = await response.json();
     return json;
   } catch (error) {
