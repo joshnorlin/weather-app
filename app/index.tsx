@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import CityList from '@/components/CityList';
+import CityDisplay from '@/components/CityDisplay';
 import SearchBar from '@/components/SearchBar';
 import SearchButton from '@/components/SearchButton';
 import WeatherDisplay from '@/components/WeatherDisplay';
@@ -22,7 +22,11 @@ export default function Index() {
     setSearchResults(await parseUserInput(refUserInput.current)); // don't know if city state variable will be saved.
   };
 
-  function renderSearchResults(results) {
+  const onPressCityDisplay = () => {
+    setSearchResults([]);
+  };
+
+  function renderSwitch(results) {
     if (!city) return;
     switch(results.length()) {
       case 0:
@@ -30,8 +34,13 @@ export default function Index() {
       case 1:
         return <WeatherDisplay data={results} />;
       default:
-        return <CityList />;
+        renderCities(results);  
     }
+  }
+
+  function renderCities(results) {
+    for(let i = 0; i < results.length(); i++)
+      return <CityDisplay city={results[i]} onPress={onPressCityDisplay}/>
   }
 
   return (
@@ -40,7 +49,7 @@ export default function Index() {
         <SearchBar onChangeText={onChangeSearchBar} />
         <SearchButton onPress={onPressSearchButton} />
       </View>
-      {renderSearchResults(searchResults)}
+      {renderSwitch(searchResults)}
     </View>
   );
 }
