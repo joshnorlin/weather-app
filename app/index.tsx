@@ -6,12 +6,12 @@ import SearchBar from '@/components/SearchBar';
 import SearchButton from '@/components/SearchButton';
 import WeatherDisplay from '@/components/WeatherDisplay';
 
-import { parseUserInput } from '../utils/parseUserInput';
+import parseUserInput from '../utils/parseUserInput';
 
 export default function Index() {
   const refUserInput = useRef('');
   const [city, setCity] = useState<string>();
-  const [searchResults, setSearchResults] = useState<[]>();
+  const [searchResults, setSearchResults] = useState<[]>([]);
 
   const onChangeSearchBar = (newInput) => {
     refUserInput.current = newInput;
@@ -22,25 +22,25 @@ export default function Index() {
     setSearchResults(await parseUserInput(refUserInput.current)); // don't know if city state variable will be saved.
   };
 
-  const onPressCityDisplay = () => {
-    setSearchResults([]);
+  const onPressCityDisplay = (selectedCity) => {
+    setSearchResults([selectedCity]);
   };
 
   function renderSwitch(results) {
     if (!city) return;
-    switch(results.length()) {
-      case 0:
-        return <Text>no city found.</Text>;
-      case 1:
-        return <WeatherDisplay data={results} />;
-      default:
-        renderCities(results);  
+    if (!results || results.length === 0) {
+      return <Text>no city found.</Text>;
     }
+    if (results.length === 1) {
+      return <WeatherDisplay data={results[0]}/>;
+    }
+    return renderCities(results);
   }
 
   function renderCities(results) {
-    for(let i = 0; i < results.length(); i++)
-      return <CityDisplay city={results[i]} onPress={onPressCityDisplay}/>
+    return results.map((city, i) => (
+      <CityDisplay key={i} city={city} onPress={() => onPressCityDisplay(city)} />
+    ));
   }
 
   return (

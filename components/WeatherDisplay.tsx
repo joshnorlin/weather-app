@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import callWeatherApi from '../utils/callWeatherApi';
+import parseStateAbbreviations from '../utils/parseStateAbbreviations';
 
-export default function WeatherDisplay(data) {
-  const [apiData, setApiData] = useState();
-  const [loading, setLoading] = useState<boolean>(false);
-
+export default function WeatherDisplay({ data }) {
+  const [apiData, setApiData] = useState([]);
+	const [loading, setLoading] = useState<boolean>(false);
+	useEffect(() => {
+		async function fetchData() {
+			setLoading(true);
+			setApiData(await callWeatherApi(data));
+			setLoading(false);
+		}
+		fetchData();
+	}, []);
 
   return (
     <View>
       {loading ? (
         <Text>Loading...</Text>
-      ) : data?.error ? (
-        <Text>{data.error}</Text>
-      ) : data ? (
+      ) : apiData?.error ? (
+        <Text>{apiData.error}</Text>
+      ) : apiData ? (
         <View style={styles.weatherDisplay}>
-          <Text style={styles.cityText}>{data.name}</Text>
-          <Text style={styles.temperatureText}>{data.main?.temp}°F</Text>
-          <Text style={styles.weatherText}>{data.weather?.[0]?.description}</Text>
+          <Text style={styles.cityText}>{data.city_ascii}, {data.iso2 === "US" ? parseStateAbbreviations(data.admin_name) : data.country}</Text>
+          <Text style={styles.temperatureText}>{apiData.main?.temp}°F</Text>
+          <Text style={styles.weatherText}>{apiData.weather?.[0]?.description}</Text>
         </View>
       ) : (
         <Text>Enter a city name to get weather.</Text>
