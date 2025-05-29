@@ -4,16 +4,15 @@ import callWeatherApi from '../utils/callWeatherApi';
 import parseStateAbbreviations from '../utils/parseStateAbbreviations';
 
 function formatTime(unix, timezone) {
-  console.log(unix, timezone);
-  if (!unix || timezone === undefined) return '--';
-  const now = new Date(unix);
+  const now = new Date(unix * 1000);
   const utcTime = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
-  //const cityTime = new Date(utcTime + timezone * 1000);
-  return new Date(utcTime).toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const cityTime = new Date(utcTime + timezone * 1000);
+  return (cityTime.toLocaleTimeString(undefined, {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+  );
 }
 
 export default function WeatherDisplay({ cityData }) {
@@ -51,8 +50,8 @@ export default function WeatherDisplay({ cityData }) {
       }));
     }
     updateLocalTime();
-    const interval = setInterval(updateLocalTime, 1000);
-    return () => clearInterval(interval);
+    //const interval = setInterval(updateLocalTime, 1000);
+    //return () => clearInterval(interval);
   }, [apiData]);
 
   return (
@@ -129,7 +128,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dateText: {
-    fontSize: 15,
+    fontSize: 18,
     color: '#888',
     marginBottom: 2,
     textAlign: 'center',
