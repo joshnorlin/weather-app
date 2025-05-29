@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 type Props = {
   onPress: () => void;
@@ -7,11 +7,17 @@ type Props = {
 
 export default function SearchButton({ onPress }: Props) {
   return (
-    <View>
-      <Pressable style={styles.searchButton} onPress={onPress}>
-        <Text style={styles.searchButtonText}>go.</Text>
-      </Pressable>
-    </View>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.searchButton,
+        {
+          backgroundColor: pressed ? '#63b3ed' : '#1e90ff',
+        },
+      ]}
+    >
+      <Text style={styles.searchButtonText}>go.</Text>
+    </Pressable>
   );
 }
 const styles = StyleSheet.create({

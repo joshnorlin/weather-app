@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import CityDisplay from '@/components/CityDisplay';
+import ForecastDisplay from '@/components/ForecastDisplay';
 import SearchBar from '@/components/SearchBar';
 import SearchButton from '@/components/SearchButton';
 import WeatherDisplay from '@/components/WeatherDisplay';
@@ -32,7 +33,12 @@ export default function Index() {
       return <Text>no city found.</Text>;
     }
     if (results.length === 1) {
-      return <WeatherDisplay data={results[0]}/>;
+      return (
+        <ScrollView indicatorStyle={'black'} contentContainerStyle={{ flexGrow: 1 }}>
+          <WeatherDisplay cityData={results[0]}/>
+          <ForecastDisplay cityData={results[0]}/>
+        </ScrollView>
+      )
     }
     return renderCities(results);
   }
@@ -65,7 +71,8 @@ const styles = StyleSheet.create({
 	  flexDirection: 'row',
 	  justifyContent: 'space-between',
 	  alignItems: 'center',
-	  marginBottom: 20,
+    marginTop: 30,
+	  marginBottom: 5,
 	  backgroundColor: '#fff',
 	  borderRadius: 10,
 	  paddingHorizontal: 10,

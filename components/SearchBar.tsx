@@ -1,29 +1,36 @@
-import React, {useState} from 'react';
-import { StyleSheet, View, TextInput } from 'react-native';
+import React, { useRef } from 'react';
+import { Pressable, StyleSheet, TextInput } from 'react-native';
 
 type Props = {
-  onChangeText: () => void;
+  onChangeText: (text: string) => void;
 };
 
 export default function SearchBar({ onChangeText }: Props) {
+  const inputRef = useRef<TextInput>(null);
+
   return (
-    <View>
+    <Pressable
+      style={styles.searchBar}
+      onPress={() => inputRef.current && inputRef.current.focus()}
+    >
       <TextInput
-        style={styles.searchBar}
+        ref={inputRef}
+        style={{ flex: 1, fontSize: 16, color: '#333', width: '100%' }}
         keyboardType="default"
         placeholder="'boise'"
         placeholderTextColor="#b1c4b6"
         onChangeText={onChangeText}
       />
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
-    fontSize: 16,
     padding: 10,
-    color: '#333',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
 });
