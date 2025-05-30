@@ -1,77 +1,87 @@
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import callForecastApi from '../utils/callForecastApi';
-import groupDailyForecast from '../utils/groupDailyForecast';
+import formatForecastList from '../utils/formatForecastList';
+import groupForecastByDay from '../utils/groupForecastByDay';
+
+function getLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 export default function ForecastDisplay({ cityData }) {
-  const [queryData, setQueryData] = useState([]);
-  const [apiData, setApiData] = useState([]);
   const [fullList, setFullList] = useState([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [localDateString, setLocalDateString] = useState('');
-  const [localTimeString, setLocalTimeString] = useState('');
+  const [timezone, setTimezone] = useState<number>(0);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
+
       const result = await callForecastApi(cityData);
-      setQueryData(result);
-      setFullList(result.list); // <-- This should be the raw list from the API
-      const sections = groupDailyForecast(result.list, result.city.timezone);
-      setApiData(sections);     // <-- This should be the grouped daily forecast
+      setTimezone(result.city?.timezone);
+
+      const formattedForecastList = formatForecastList(result.list, result.city?.timezone);
+      setFullList(formattedForecastList);
+
       setLoading(false);
     }
     fetchData();
   }, [cityData]);
 
+  // Group forecasts by day after fetching and formatting the data
+  const now = new Date();
+  const utcTime = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+  const cityTime = new Date(utcTime + timezone * 1000);
+  const todayStr = getLocalDateKey(cityTime);
+  const groupedForecasts = groupForecastByDay(fullList, timezone);
+
   return (
     <View>
       {loading ? (
-        <Text>Loading...</Text>
-      ) : apiData?.error ? (
-        <Text>{apiData.error}</Text>
-      ) : apiData ? (
-        <View>
+        <Text></Text>
+      ) : fullList?.error ? (
+        <Text>{fullList.error}</Text>
+      ) : fullList ? (
+        <View style={styles.responsiveContainer}>
           {/* Today's details */}
-          <Text style={styles.sectionHeader}>Today</Text>
-          {/* Show more details for today, e.g., next 3-4 slots */}
-          {fullList
-            .slice(0, 8)
-            .map(item => (
-              <View key={item.dt_txt} style={styles.forecastRow}>
-                <Text style={styles.timeText}>
-                  {new Date(item.dt_txt).toLocaleTimeString(undefined, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </Text>
-                <Image
-                  style={styles.icon}
-                  source={{
-                    uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
-                  }}
-                />
-                <Text style={styles.tempText}>{Math.round(item.main.temp)}°F</Text>
-                <Text style={styles.descText}>{item.weather[0].description}</Text>
+          {groupedForecasts.map(({ date, forecasts }, idx) => {
+            let sectionLabel;
+            if (idx === 0 && date === todayStr) {
+              sectionLabel = 'Today';
+            } else {
+              const now = new Date(date);
+              const utcTime = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+              const cityDate = new Date(utcTime + timezone * 1000);
+              sectionLabel = cityDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+            }
+            return (
+              <View key={date}>
+                <Text style={styles.sectionHeader}>{sectionLabel}</Text>
+                {forecasts.map(item => (
+                  <View key={item.dt_txt} style={styles.forecastRow}>
+                    <Text style={styles.timeText}>
+                      {new Date(item.dt_txt).toLocaleTimeString(undefined, {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </Text>
+                    <Image
+                      style={styles.icon}
+                      source={{
+                        uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`,
+                      }}
+                    />
+                    <Text style={styles.tempText}>{Math.round(item.main.temp)}°F</Text>
+                    <Text style={styles.descText}>{item.weather[0].description}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
-
-          {/* Next days summary */}
-          <Text style={styles.sectionHeader}>Next Days</Text>
-          {apiData.slice(1).map(day => (
-            <View key={day.date} style={styles.forecastRow}>
-              <Text>
-                {new Date(day.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-              </Text>
-              <Image
-                source={{ uri: `https://openweathermap.org/img/wn/${day.forecast.weather[0].icon}@2x.png` }}
-                style={styles.icon}
-              />
-              <Text style={styles.weeklyForecastText}>{Math.round(day.forecast.main.temp)}°F</Text>
-              <Text style={styles.weeklyForecastText}>{day.forecast.weather[0].description}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
       ) : (
         <Text>Enter a city to get weather.</Text>
@@ -81,6 +91,12 @@ export default function ForecastDisplay({ cityData }) {
 }
 
 const styles = StyleSheet.create({
+  responsiveContainer: {
+    width: '100%',
+    maxWidth: 350, // or whatever width looks good (e.g., 400-600)
+    alignSelf: 'center',
+    paddingHorizontal: 16, // for some side padding
+  },
   sectionHeader: {
     marginTop: 20,
     fontSize: 18,

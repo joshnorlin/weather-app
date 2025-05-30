@@ -52,7 +52,10 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <SearchBar onChangeText={onChangeSearchBar} />
+        <SearchBar
+          onChangeText={onChangeSearchBar}
+          onSubmit={onPressSearchButton}
+        />
         <SearchButton onPress={onPressSearchButton} />
       </View>
       {renderSwitch(searchResults)}
@@ -68,11 +71,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchContainer: {
+    width: '100%',
+    maxWidth: 250, // or whatever width looks good (e.g., 400-600)
+    alignSelf: 'center',
 	  flexDirection: 'row',
 	  justifyContent: 'space-between',
 	  alignItems: 'center',
-    marginTop: 30,
-	  marginBottom: 5,
+    marginTop: 5,
+	  marginBottom: 15,
 	  backgroundColor: '#fff',
 	  borderRadius: 10,
 	  paddingHorizontal: 10,

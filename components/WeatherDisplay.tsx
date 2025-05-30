@@ -44,20 +44,20 @@ export default function WeatherDisplay({ cityData }) {
         day: 'numeric',
       }));
       setLocalTimeString(cityTime.toLocaleTimeString(undefined, {
-        hour: '2-digit',
+        hour: 'numeric',
         minute: '2-digit',
         hour12: true,
       }));
     }
     updateLocalTime();
-    //const interval = setInterval(updateLocalTime, 1000);
-    //return () => clearInterval(interval);
+    const interval = setInterval(updateLocalTime, 1000);
+    return () => clearInterval(interval);
   }, [apiData]);
 
   return (
-    <View style={styles.outerContainer}>
+    <View style={styles.responsiveContainer}>
       {loading ? (
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}></Text>
       ) : apiData?.error ? (
         <Text style={styles.errorText}>{apiData.error}</Text>
       ) : apiData ? (
@@ -103,6 +103,12 @@ export default function WeatherDisplay({ cityData }) {
 }
 
 const styles = StyleSheet.create({
+  responsiveContainer: {
+    width: '100%',
+    maxWidth: 350, // or whatever width looks good (e.g., 400-600)
+    alignSelf: 'center',
+    paddingHorizontal: 16, // for some side padding
+  },
   outerContainer: {
     width: '100%',
     alignItems: 'center',
@@ -161,6 +167,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   detailsRow: {
+    maxWidth: 200,// or whatever width looks good (e.g., 400-600)
+    alignSelf: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',

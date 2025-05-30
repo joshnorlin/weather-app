@@ -21,6 +21,9 @@ export default function CityList({ city, onPress }) {
 
 const styles = StyleSheet.create({
   cityContainer: {
+    maxWidth: 350, // or whatever width looks good (e.g., 400-600)
+    alignSelf: 'center',
+    paddingHorizontal: 16, // for some side padding
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 16,
